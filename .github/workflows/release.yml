@@ -267,14 +267,7 @@ jobs:
         unzip -q opencv-mobile-${{ matrix.opencv-version }}.zip
         echo "SOURCE_DIR=opencv-mobile-${{ matrix.opencv-version }}" >> $GITHUB_ENV
         echo "PACKAGE_NAME=opencv-mobile-${{ matrix.opencv-version }}-android" >> $GITHUB_ENV
-    - name: build-armeabi-v7a
-      run: |
-        cd ${{ env.SOURCE_DIR }}
-        mkdir build-armeabi-v7a && cd build-armeabi-v7a
-        cmake ${{ env.COMMON_CMAKE_OPTIONS }} -DANDROID_ABI="armeabi-v7a" -DANDROID_ARM_NEON=ON \
-            `cat ../options.txt` -DBUILD_opencv_world=OFF -DOPENCV_DISABLE_FILESYSTEM_SUPPORT=ON ..
-        cmake --build . -j $(nproc)
-        cmake --build . --target install
+    
     - name: build-arm64-v8a
       run: |
         cd ${{ env.SOURCE_DIR }}
@@ -307,13 +300,7 @@ jobs:
         cp -rf ${{ env.SOURCE_DIR }}/build-armeabi-v7a/install/* ${{ env.PACKAGE_NAME }}/
         cp -rf ${{ env.SOURCE_DIR }}/build-arm64-v8a/install/* ${{ env.PACKAGE_NAME }}/
         zip -9 -r ${{ env.PACKAGE_NAME }}.zip ${{ env.PACKAGE_NAME }}
-    - name: test-armeabi-v7a
-      run: |
-        cd test
-        mkdir build-armeabi-v7a && cd build-armeabi-v7a
-        cmake ${{ env.COMMON_CMAKE_OPTIONS }} -DANDROID_ABI="armeabi-v7a" -DANDROID_ARM_NEON=ON \
-            -DOpenCV_DIR=$GITHUB_WORKSPACE/${{ env.PACKAGE_NAME }}/sdk/native/jni ..
-        cmake --build . -j $(nproc)
+    
     - name: test-arm64-v8a
       run: |
         cd test
@@ -369,14 +356,7 @@ jobs:
         unzip -q opencv-mobile-${{ matrix.opencv-version }}.zip
         echo "SOURCE_DIR=opencv-mobile-${{ matrix.opencv-version }}" >> $GITHUB_ENV
         echo "PACKAGE_NAME=opencv-mobile-${{ matrix.opencv-version }}-harmonyos" >> $GITHUB_ENV
-    - name: build-armeabi-v7a
-      run: |
-        cd ${{ env.SOURCE_DIR }}
-        mkdir build-armeabi-v7a && cd build-armeabi-v7a
-        ${{ env.OHOS_NDK_CMAKE }} ${{ env.COMMON_CMAKE_OPTIONS }} -DOHOS_ARCH="armeabi-v7a" \
-            `cat ../options.txt` -DBUILD_opencv_world=OFF -DOPENCV_DISABLE_FILESYSTEM_SUPPORT=ON ..
-        ${{ env.OHOS_NDK_CMAKE }} --build . -j $(nproc)
-        ${{ env.OHOS_NDK_CMAKE }} --build . --target install
+  
     - name: build-arm64-v8a
       run: |
         cd ${{ env.SOURCE_DIR }}
@@ -409,13 +389,7 @@ jobs:
     - name: set-opencv-dir
       if: matrix.opencv-version == '4.10.0'
       run: echo "OPENCV_SUBDIR=lib/cmake/opencv4" >> $GITHUB_ENV
-    - name: test-armeabi-v7a
-      run: |
-        cd test
-        mkdir build-armeabi-v7a && cd build-armeabi-v7a
-        ${{ env.OHOS_NDK_CMAKE }} ${{ env.COMMON_CMAKE_OPTIONS }} -DOHOS_ARCH="armeabi-v7a" \
-            -DOpenCV_DIR=$GITHUB_WORKSPACE/${{ env.PACKAGE_NAME }}/armeabi-v7a/${{ env.OPENCV_SUBDIR }} ..
-        ${{ env.OHOS_NDK_CMAKE }} --build . -j $(nproc)
+    
     - name: test-arm64-v8a
       run: |
         cd test
@@ -705,7 +679,7 @@ jobs:
   release:
     permissions:
       contents: write  # for softprops/action-gh-release to create a release
-    needs: [setup, android, harmonyos,windows]
+    needs: [setup, android]
     runs-on: ubuntu-latest
     steps:
     - name: download
